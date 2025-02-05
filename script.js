@@ -2,6 +2,11 @@ let currentUsername = '';
 let connectedUsers = [];
 let drone;
 
+// Function to generate a random username
+function generateUsername() {
+  return `user-${Math.floor(Math.random() * 1000) + 1}`;
+}
+
 // Function to connect a user
 function connectUser(username) {
   currentUsername = username;
@@ -115,20 +120,9 @@ function showModerationMenu() {
   }
 }
 
-// Function to handle user login
-function login() {
-  const usernameInput = document.getElementById('username');
-  const username = usernameInput.value;
-  if (username) {
-    connectUser(username);
-    document.getElementById('login').style.display = 'none';
-    checkIfKicked();
-  }
-}
+// Check if the user is kicked on page load
+checkIfKicked();
 
-// Handle window unload (disconnect user)
-window.addEventListener('beforeunload', disconnectUser);
-
-// Connect user on page load (replace 'username' with actual username handling logic)
-connectUser('username');
-
+// Generate a username and connect the user
+const username = generateUsername();
+connectUser(username);
