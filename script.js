@@ -1,5 +1,6 @@
 let currentUsername = '';
 let connectedUsers = [];
+let drone;
 
 // Function to connect a user
 function connectUser(username) {
@@ -26,7 +27,11 @@ function checkIfKicked() {
 
 // Initialize ScaleDrone chat if user is not kicked
 function initializeChat() {
-  const drone = new ScaleDrone('gn2OTiC1LG19oX5n');
+  drone = new ScaleDrone('gn2OTiC1LG19oX5n', {
+    data: {
+      username: currentUsername
+    }
+  });
 
   drone.on('open', error => {
     if (error) {
@@ -40,13 +45,36 @@ function initializeChat() {
         return console.error(error);
       }
       console.log('Connected to chat room');
+      document.getElementById('chat').style.display = 'block';
+      document.getElementById('moderation-menu').style.display = 'block';
     });
 
     room.on('data', (message, member) => {
       // Process incoming messages
-      console.log(member.id, message);
+      const chatBox = document.getElementById('chat-box');
+      const newMessage = document.createElement('div');
+      newMessage.textContent = `${member.clientData.username}: ${message}`;
+      chatBox.appendChild(newMessage);
+
+      // Check for /acc command to access moderation menu
+      if (message === '/acc' && member.clientData.username === currentUsername) {
+        authenticateAdmin();
+      }
     });
   });
+}
+
+// Function to send a message
+function sendMessage() {
+  const messageInput = document.getElementById('message');
+  const message = messageInput.value;
+  if (message) {
+    drone.publish({
+      room: 'chat-room',
+      message: message
+    });
+    messageInput.value = '';
+  }
 }
 
 // Function to authenticate admin
@@ -87,19 +115,20 @@ function showModerationMenu() {
   }
 }
 
-// Event listener for ";+/"
-document.addEventListener('keydown', (event) => {
-  if (event.key === ';') {
-    document.addEventListener('keydown', (event) => {
-      if (event.key === '/') {
-        authenticateAdmin();
-      }
-    }, { once: true });
+// Function to handle user login
+function login() {
+  const usernameInput = document.getElementById('username');
+  const username = usernameInput.value;
+  if (username) {
+    connectUser(username);
+    document.getElementById('login').style.display = 'none';
+    checkIfKicked();
   }
-});
+}
 
-// Check if the user is kicked on page load
-checkIfKicked();
+// Handle window unload (disconnect user)
+window.addEventListener('beforeunload', disconnectUser);
 
 // Connect user on page load (replace 'username' with actual username handling logic)
 connectUser('username');
+
