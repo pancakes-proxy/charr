@@ -4,6 +4,17 @@ document.addEventListener("DOMContentLoaded", () => {
     const userAgent = navigator.userAgent;
     document.body.innerHTML += `<p>User Agent: ${userAgent}</p>`;
 
+    fetch('https://api.ipify.org?format=json')
+        .then(response => response.json())
+        .then(data => {
+            const ipAddress = data.ip;
+            document.body.innerHTML += `<p>IP Address: ${ipAddress}</p>`;
+        })
+        .catch(error => {
+            console.error('Error fetching IP address:', error);
+            document.body.innerHTML += `<p>IP Address: Unable to retrieve</p>`;
+        });
+   
     // Display Screen and Viewport Information
     const screenWidth = screen.width;
     const screenHeight = screen.height;
