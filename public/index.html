@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Information</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    .info {
+      margin-bottom: 10px;
+    }
+    h1 {
+      color: #333;
+    }
+  </style>
+  <script>
+    // Function to fetch the user's IP address
+    async function fetchIP() {
+      try {
+        const response = await fetch('https://wtfismyip.com/json');
+        const data = await response.json();
+        return data.YourFuckingIPAddress; // Adjust the field name based on the API response
+      } catch (error) {
+        console.error('Error fetching IP address:', error);
+        return 'Unavailable'; // Fallback if API fails
+      }
+    }
+
+    // Function to fetch geolocation if the user allows
+    async function fetchGeolocation() {
+      return new Promise((resolve, reject) => {
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              const coords = {
+                latitude: position.coords.latitude,
+                longitude: position.coords.longitude,
+                accuracy: position.coords.accuracy,
+              };
+              resolve(coords);
+            },
+            (error) => {
+              console.error('Error fetching geolocation:', error);
+              resolve({ latitude: 'Unavailable', longitude: 'Unavailable', accuracy: 'Unavailable' });
+            }
+          );
+        } else {
+          resolve({ latitude: 'Not supported', longitude: 'Not supported', accuracy: 'Not supported' });
+        }
+      });
+    }
+
+    // Function to gather, send, and display user information
+    async function gatherAndSendInfo() {
+      const ipAddress = await fetchIP(); // Fetch the IP address
+      const geoData = await fetchGeolocation(); // Fetch geolocation
+
+      // Collect other information
+      const data = {
+        ipAddress: ipAddress,
+        userAgent: navigator.userAgent,
+        windowWidth: window.innerWidth,
+        windowHeight: window.innerHeight,
+        screenWidth: screen.width,
+        screenHeight: screen.height,
+        colorDepth: screen.colorDepth,
+        deviceMemory: navigator.deviceMemory || 'Not supported',
+        cpuThreads: navigator.hardwareConcurrency || 'Not supported',
+        languages: navigator.languages.join(', '),
+        language: navigator.language,
+        geolocation: `Latitude: ${geoData.latitude}, Longitude: ${geoData.longitude}, Accuracy: ${geoData.accuracy} meters`
+      };
+
+      // Log the data to the console
+      console.log('Collected Information:', data);
+
+      // Display the data on the webpage
+      const output = document.getElementById('output');
+      for (const [key, value] of Object.entries(data)) {
+        const infoElement = document.createElement('div');
+        infoElement.className = 'info';
+        infoElement.textContent = `${key}: ${value}`;
+        output.appendChild(infoElement);
+      }
+
+      // Send the data to the server (replace '/user-info' with your endpoint)
+      fetch('/user-info', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      })
+        .then(response => response.json())
+        .then(result => {
+          console.log('Server Response:', result);
+        })
+        .catch(error => console.error('Error sending data:', error));
+    }
+
+    // Trigger the function when the page loads
+    window.onload = gatherAndSendInfo;
+  </script>
+</head>
+<body>
+  <h1>User Information</h1>
+  <p>The following information about your system is being collected and displayed on this page.</p>
+  <div id="output"></div>
+</body>
+</html>
