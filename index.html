@@ -1,18 +1,54 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>he he >.<</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Display Info</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    .info {
+      margin-bottom: 10px;
+    }
+  </style>
+  <script>
+    // Function to gather and display information
+    function displayInfo() {
+      // Collect information
+      const data = {
+        userAgent: navigator.userAgent,
+        windowWidth: window.innerWidth,
+        windowHeight: window.innerHeight,
+        screenWidth: screen.width,
+        screenHeight: screen.height,
+        colorDepth: screen.colorDepth,
+        deviceMemory: navigator.deviceMemory || 'Not supported',
+        cpuThreads: navigator.hardwareConcurrency || 'Not supported',
+        languages: navigator.languages.join(', '),
+        language: navigator.language
+      };
+
+      // Log the info to the console
+      console.log('Collected Information:', data);
+
+      // Display the info on the web page
+      const output = document.getElementById('output');
+      for (const [key, value] of Object.entries(data)) {
+        const infoElement = document.createElement('div');
+        infoElement.className = 'info';
+        infoElement.textContent = `${key}: ${value}`;
+        output.appendChild(infoElement);
+      }
+    }
+
+    // Run the function after the page loads
+    window.onload = displayInfo;
+  </script>
 </head>
 <body>
-    <h1>he he :3</h1>
-    <h3>i just stole your</h3>
-    <ol>
-        <li>IP</li>
-        <li>cords</li>
-        <li>user agent</li>
-    </ol>
-    <script src="script.js"></script>
+  <h1>User Information</h1>
+  <div id="output"></div>
 </body>
 </html>
